@@ -118,9 +118,18 @@ let rec map f list = match list with
 ;;
 
 let rec rev_map f list 
+    rev (map f list);;
+;;
 
-let rec map2
+let rec map2 list1 list2 = match (l1, l2) with
+    h1::t1 , h2::t2 -> (f h1 h2) :: map2 f t1 t2
+;;
 
-let rec fold_right
+let rec fold_right f list i = match list with
+    h :: t -> f h (fold_right f t i)
+;;
 
-let rec fold_left
+let rec fold_left f i list = match list with
+    h :: t -> fold_left f (f i h) t
+;;
+
