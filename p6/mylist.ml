@@ -24,7 +24,7 @@ let compare_lengths list1 list2 =
 
 let rec nth n list =
     if n = 0 then (hd list)
-    else nth (n-1) list
+    else nth (n-1) (tl list)
 ;;
 
 let rec append list1 list2 = match list1 with
@@ -61,7 +61,7 @@ let filter f list =
     in filter_aux f list []
 ;;
 
-let rec find_all f list = 
+let find_all f list = 
         let rec filter_aux f list r_list =
         if (hd list) = [] then r_list
         else(
@@ -82,11 +82,11 @@ let partition f list =
 ;;
 
 let rec split = function
-    (h1,h2) :: t -> let (l1, l2) = split t in  (h1::l1, h2::l2)
+    (h1,h2) :: t -> let (t1, t2) = split t in  (h1::t1, h2::t2)
 ;;
 
-let rec combine = function 
-    (h1::l1, h2::l2) -> (h1,h2)::combine t1 t2
+let rec combine list1 list2 = match (list1, list2) with
+    (h1::t1, h2::t2) -> (h1,h2)::combine t1 t2
 ;;
 
 let init n f =
@@ -102,6 +102,7 @@ let rev list =
         | h :: t -> aux_rev t (append h list2) 
     in aux_rev list []
 ;;
+
 
 let rec rev_append list1 list2 =
     append (rev list1) list2
