@@ -106,11 +106,17 @@ let remove x l =
     | l -> l, []
 ;;*)
 
+(*the pattern matching case of [] is taken into account on the divide function
+    the warning is not necessary*)
+
 let divide l =
-    let rec aux_divide list odd_list even_list = match list with
-        | h1::h2::t -> aux_divide t (h1::odd_list) (h2::even_list) 
-        | h::[] -> (List.rev(h::odd_list), List.rev(even_list))
-    in aux_divide l [] []
+    if l = [] then [],[]
+    else(
+        let rec aux_divide list odd_list even_list = match list with
+            | h1::h2::t -> aux_divide t (h1::odd_list) (h2::even_list) 
+            | h::[] -> (List.rev(h::odd_list), List.rev(even_list))
+        in aux_divide l [] []
+    )
 ;;
 
 
