@@ -1,23 +1,51 @@
 let rec divide l = match l with
     h1::h2::t -> let t1, t2 = divide t in (h1::t1, h2::t2)
-    | _ -> l []
+    | _ -> l, []
 ;;
 
-let rec merge = function
-    [], l | [] -> l
-    | h1::t1, h2::t2 -> if h1 <= h2 then h1 :: merge (t1, h2::t2)
-                        else h2 :: merge (h1::t1,t2)
+(*let rec merge = function
+      [], l | l, [] -> l
+    | h1::t1, h2::t2 ->
+        if h1 <= h2
+        then
+            h1 :: merge (t1, h2::t2)
+        else
+            h2 :: merge (h1::t1, t2);;
+            
+(’a -> ’a -> bool) -> ’a list * ’a list -> ’a list
+*)
+
+let rec merge cmp = function
+    [], l | l, [] -> l
+    | h1::t1, h2::t2 ->
+        if cmp h1 h2
+        then
+            h1 :: merge (cmp) (t1, h2::t2)
+        else
+            h2 :: merge (cmp) (h1::t1, t2)
 ;;
 
+(*
 let rec msort1 l = match l with
     [] | _::[] -> l
     |  _ -> let l1, l2 = divide l
             in merge(msort1 l1, msort1 l2)
 ;;
+*)
+
+let rec msort1 cmp l =
+    match l with
+        [] | _::[] -> l
+        | _ ->
+            let l1, l2 = divide l
+            in merge (cmp) (msort1 (cmp) l1, msort1 (cmp)l2)
+;;
+
+
 
 (*si, de nuevo, es posible que se produzca un stack overflow devido a la no-recursividad*)
 
-let l2 = init 600000 (function x -> Random.int 1000);;
+let l2 = List.init 600000 (function x -> Random.int 1000);;
 
 let divide' l =
     let rec aux dvd1 dvd2 = function
