@@ -1,8 +1,8 @@
 type 'a g_tree = Gt of 'a * 'a g_tree list;;
 
 
-val size : 'a g_tree -> int
-(* devuelve el número de nodos de un g_tree *)
+(*val size : 'a g_tree -> int
+ devuelve el número de nodos de un g_tree *)
     
 let rec size = function
     Gt (_,[]) -> 1
@@ -10,8 +10,8 @@ let rec size = function
 ;;
 
 
-val height : 'a g_tree -> int
-(* devuelve la "altura", como número de niveles, de un g_tree *)
+(*val height : 'a g_tree -> int
+ devuelve la "altura", como número de niveles, de un g_tree *)
 
 let rec height = function
     Gt (_,[]) -> 1
@@ -21,8 +21,8 @@ let rec height = function
 ;;
 
 
-val leaves : 'a g_tree -> 'a list
-(* devuelve las hojas de un g_tree, "de izquierda a derecha" *)
+(*val leaves : 'a g_tree -> 'a list
+ devuelve las hojas de un g_tree, "de izquierda a derecha" *)
 
 let rec leaves =
     let rec f aux_leaves = function
@@ -34,16 +34,16 @@ let rec leaves =
 ;;
 
 
-val mirror : 'a g_tree -> 'a g_tree
-(* devuelve la imagen especular de un g_tree *)
+(*val mirror : 'a g_tree -> 'a g_tree
+ devuelve la imagen especular de un g_tree *)
 
 let rec mirror = function
     Gt(r,[]) -> Gt(r,[])
     |Gt(r,l) -> Gt( r, List.rev(List.map (mirror) l))
 ;;
 
-val preorder : 'a g_tree -> 'a list
-(* devuelve la lista de nodos de un g_tree en "preorden" *)
+(*val preorder : 'a g_tree -> 'a list
+ devuelve la lista de nodos de un g_tree en "preorden" *)
 
 let rec preorder =
     let rec aux_preorder l = function
@@ -51,11 +51,11 @@ let rec preorder =
         | h::t -> aux_preorder ( l @ (preorder h) ) t
     in function  
       Gt (v, []) -> [v]
-    | Gt (v, l) -> v::bucle [] l
+    | Gt (v, l) -> v::aux_preorder [] l
 ;;                                   
 
-val postorder : 'a g_tree -> 'a list
-(* devuelve la lista de nodos de un g_tree en "postorden" *)
+(*val postorder : 'a g_tree -> 'a list
+ devuelve la lista de nodos de un g_tree en "postorden" *)
 
 let rec postorder = function
     Gt (r,[]) -> [r]                         
