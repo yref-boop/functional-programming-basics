@@ -1,11 +1,11 @@
 type log_exp =
-Const of bool
-| Var of string
-| Neg of log_exp
-| Disj of log_exp * log_exp
-| Conj of log_exp * log_exp
-| Cond of log_exp * log_exp
-| BiCond of log_exp * log_exp;;
+    Const of bool
+    | Var of string
+    | Neg of log_exp
+    | Disj of log_exp * log_exp
+    | Conj of log_exp * log_exp
+    | Cond of log_exp * log_exp
+    | BiCond of log_exp * log_exp;;
 
 type oper = Not
 
@@ -13,27 +13,27 @@ type biOper = Or | And | If | Iff
 
 type prop =
     C of bool
-  | V of string
-  | Op of oper * prop
-  | BiOp of biOper * prop * prop
+    | V of string
+    | Op of oper * prop
+    | BiOp of biOper * prop * prop
 
 let rec prop_of_log_exp =
     let pole = prop_of_log_exp in function
-      Const x -> C x
-    | Var x -> V x
-    | Neg x -> Op (Not, pole x)
-    | Disj (x, y) -> BiOp (Or, pole x, pole y)
-    | Conj (x, y) -> BiOp (And, pole x, pole y)
-    | Cond (x, y) -> BiOp (If, pole x, pole y)
-    | BiCond (x, y) -> BiOp (Iff, pole x, pole y)
+        Const x -> C x
+        | Var x -> V x
+        | Neg x -> Op (Not, pole x)
+        | Disj (x, y) -> BiOp (Or, pole x, pole y)
+        | Conj (x, y) -> BiOp (And, pole x, pole y)
+        | Cond (x, y) -> BiOp (If, pole x, pole y)
+        | BiCond (x, y) -> BiOp (Iff, pole x, pole y)
 ;;
 
 let rec log_exp_of_prop =
     let leop = log_exp_of_prop in function
-      C x -> Const x
-    | V x -> Var x
-    | Op (_, x) -> Neg (leop x)
-    | BiOp (op, x, y) ->
+        C x -> Const x
+        | V x -> Var x
+        | Op (_, x) -> Neg (leop x)
+        | BiOp (op, x, y) ->
         match op with
               Or  -> Disj   (leop x, leop y)
             | And -> Conj   (leop x, leop y)
@@ -59,4 +59,10 @@ let rec peval ctx = function
     | BiOp (op, x, y) -> (biopval op) (peval ctx x) (peval ctx y)
 ;;
 
-let rec is_tau prop = 
+let is_tau prop =
+    peval [ ("p", true); ("q", true) ] prop &&
+    peval [ ("p", false); ("q", true) ] prop &&
+    peval [ ("p", true); ("q", false) ] prop &&
+    peval [ ("p", false); ("q", false) ] prop
+;;
+
