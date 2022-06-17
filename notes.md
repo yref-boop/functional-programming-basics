@@ -16,7 +16,6 @@ they can be called by writting the name of the module just before the specific v
 ```
  # Char.code 'A';;
  - : int = 65
-
 ```
 
 the base module is called Stdlib and there is no need for it to be explicitely called before calling its functions
@@ -56,6 +55,21 @@ it also implements type infering, so that the language understands the type of e
 an effect of this is the existence of different infix operators (+), (+.), (/), (/.)... for each datatype
 
 ### inflix operators
+in ocaml there exists different infix operators (+), (+.), (/), (/.)... for each datatype
+
+some remakable operators:
+`=` structural equality
+`==` physical equality
+`<>` structural inequality
+`!=` physical unequality
+`**` exponentiation
+`sqrt`, `exp`, `log`
+
+also, new infix operators can be defined by using () in its definition:
+```
+# let (+++) x y = x + 2 * y;;
+# 3 +++ 4;;
+```
 
 ### expressions
 
@@ -73,7 +87,6 @@ they are applied by calling it with its arguments
 ```
  # sqrt 10.;;
  - : float 3.16227766016837952
-
 ```
 new personal functions can be implemented by several ways
 all possible cases can be explicitely written:
@@ -97,6 +110,19 @@ this self made functions can also be applied as the predefined ones, by just add
 
 on execution, the application of a function will always be prioritized over infix operators
 moreover, the application of consecutive functions is left associative
+
+for example:
+```
+# let f = function x -> function y -> x + y;;
+val f : int -> int -> int = <fun>
+```
+in this case, f will return a function from integers to integers when applied to an integer, which can be applied to integers and will return a single integer:
+```
+# f 5;;
+- : int -> int = <fun>
+# (f 5) 2;;
+- : int = 7
+```
 
 ### definitions
 different data can be stored for later use so that repeated code needen't be executed several times
@@ -164,7 +190,83 @@ moreover, this application can be defined with another definition such that
  # let x = 17 in x * x;;
 ```
 
-### logic evaluation
+
+### pattern matching
+the evaluation of functions following predefined patterns depending on the input is called pattern matching
+pattern matching should cover all possible patterns for the defined dominion, what is called exhaustive pattern matching to avoid execution problems where the input does not meet any of the defined patterns and aborts with an exception to avoid undefined behaviour
+
+it must be noted that the order in which the patterns are checked is always the same, and once one is evaluated to be true, the function executes its code, without checking for more, thus the order of the patterns is very important
+
+#### wildcards (polymorphism)
+in case that any possible input should match with a pattern, a wildcard, `_` can be used
+```
+ # let alltrue = function _ -> true;;
+ val alltrue : 'a -> bool = <fun>
+```
+note that the type of `_` is not any specific type, since it could potentially match with any value of any type, this is represented with an alpha (`'a`)
+this is an expression of polymorfism
+it must be noted that since in ocaml there must always be a defined type, in this case 'a is an specific type, a polymorfic type that could be represented as any of the others
+
+in order to specify a type,  if the compiler cannot derive it from other patterns, it must be done as follows:
+```
+ # let identity = function x -> x;;
+ val identity : 'a -> 'a = <fun>
+ # let identity_int : int -> int = function x -> x;;
+ val identity_int : int -> int = <fun>
+```
+or without having to redefine it:
+```
+ # let identity = function x -> x;;
+ val identity : 'a -> 'a = <fun>
+ # let identity_int : int -> int = identity;;
+ val identity_int : int -> int = <fun>
+```
+
+### simplified notation (η reduction)
+when defining functions that only present one rule
+it is similar to mathematical notation:
+
+```
+# let alltrue = function _ -> true;;
+val alltrue : 'a -> bool = <fun>
+# let alltrue _ = true;;
+val alltrue : 'a -> bool = <fun>
+```
+```
+# let double = function x -> 2 * x;;
+val double : int -> int = <fun>
+# let double x = 2 * x;;
+val double : int -> int = <fun>
+```
+for functions which return functions it can also be used as long as thereis only one rule, for example:
+```
+# let f = function x -> function y -> x + y;;
+val f : int -> int -> int = <fun>
+```
+would become
+```
+# let f x = function y -> x + y;;
+val f : int -> int -> int = <fun>
+```
+and applying it again it would be
+```
+# let f x y = x + y;;
+val f : int -> int -> int = <fun>
+```
+
+### logic control
+in order to control the flow of the progoram in a logic manner (check logic properties) there exists the expression `if ... then ... else`
+it must be noted that all "branches" of the logical evaluation must return values of the same type for the whole expression to make sense
+
+moreover, the infix operators related to logic would be `not`, `&&`, `||`
+
+for example, a function that returns the maximum: 
+```
+# let max x y = if x < y then y else x;;
+val max : 'a -> 'a -> 'a = <fun>
+```
+
+### eager evaluation
 ocaml is a programming language with eager evaluation, thus, all expressions are evaluated as soon as they are encountered
 for local definitions, for example, it means that the first let will be evaluated as soon as it is encountered
 
@@ -178,19 +280,14 @@ in this case, the execution will be as follows
 - then its value will be compared with the origin of the first pattern, since it matches it will execute it (return false)
 - if it didn't match it will try with the next, and so on until a pattern is satisfied or it fails
 
-### pattern matching
-the evaluation of functions following predefined patterns depending on the input is called pattern matching
-pattern matching should cover all possible patterns for the defined dominion, what is called exhaustive pattern matching to avoid execution problems where the input does not meet any of the defined patterns and aborts with an exception to avoid undefined behaviour
-
-it must be noted that the order in which the patterns are checked is always the same, and once one is evaluated to be true, the function executes its code, without checking for more, thus the order of the patterns is very important
-#### wildcards (polymorphism)
-in case that any possible input should match with a pattern, a wildcard, `_` can be used
+this example on the logical infix operators would be executed as:
 ```
- # let alltrue = function _ -> true;;
- val alltrue : 'a -> bool = <fun>
+<e1> && <e2>;;
+if <e1> then <e2> else false;;
 ```
-note that the type of `_` is not any specific type, since it could potentially match with any value of any type, this is represented with an alpha (`'a`)
-this is an expression of polymorfism
-it must be noted that since in ocaml there must always be a defined type, in this case 'a is an specific type, a polymorfic type that could be represented as any of the others
+```
+<e1> || <e2>;;
+if <e1> then true else <e2>;;
+```
 
 
