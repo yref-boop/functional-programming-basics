@@ -20,7 +20,7 @@ they can be called by writting the name of the module just before the specific v
 
 the base module is called Stdlib and there is no need for it to be explicitely called before calling its functions
 
-### primitive types
+## primitive types
 ocaml has the basic types present in most languages, integer, float, boolean...
 
 ```
@@ -56,7 +56,7 @@ an effect of this is the existence of different infix operators (+), (+.), (/), 
 
 fun fact: integers in ocaml are defined as $\mathbb{Z}_{2^63}$
 
-#### tuples
+### tuples
 moreover, ocaml allows tuples composed of any datatype, whose type would be the cardinal product of the types used:
 ```
  # (1,7);;
@@ -70,6 +70,85 @@ it also allows for other tuples to be part of tuples:
  - : (float * char) * string = (3.14 , 'p'), "math");;
 ```
 the individual elements can be obtained by using the functions `fst` and `scd`
+
+### lists
+in ocaml finite sequences can be represented as list
+lists can have any number of elements but must be composed of the same datatype and any datatype is valid
+they are represented by [], separating elements by ;
+```
+ # ['a';'e';'i';'o';'u'];;
+ - : char list = ['a';'e';'i';'o';'u'];
+ # [();()];;
+ - : unit list = [();()]
+```
+the empty list is the same for all datatypes, using the polymorfic datatype 'a
+```
+ # [];;
+ - : 'a list = []
+```
+there is a whole module defined for lists, the List
+most notable functions are
+```
+ # List.hd;;
+ - : 'a list -> 'a = <fun>
+```
+```
+ # List.tl;;
+ - : 'a list -> 'a list = <fun>
+```
+```
+ # List.length;;
+ - : 'a list -> int  = <fun>
+```
+```
+ # List.nth;;
+ - : 'a list -> int -> 'a = <fun>
+```
+```
+ # (@);;
+ - : 'a list -> 'a list -> 'a list = <fun>
+```
+```
+ # List.append;;
+ - : 'a list -> 'a list -> 'a list = <fun>
+```
+```
+ # List.concat;;
+ - : 'a list list -> 'a list = <fun>
+```
+```
+ # List.rev;;
+ - : 'a list -> 'a list = <fun>
+```
+```
+ # List.map;;
+ - : ('a -> 'b) -> 'a list -> 'b list = <fun>
+```
+```
+ # List.filter;;
+ - : ('a -> bool) -> 'a list -> 'a list = <fun>
+```
+```
+ # List.mem;;
+ - : 'a -> 'a list -> bool = <fun>
+```
+```
+ # List.exists;;
+ - : ('a -> bool) -> 'a list -> bool = <fun>
+```
+```
+ # List.for_all;;
+ - : ('a -> bool) -> 'a list -> bool = <fun>
+```
+```
+ # List.find;;
+ - : ('a -> bool) -> 'a list -> 'a = <fun>
+```
+```
+ # List.init;;
+ - : int -> (int -> 'a) -> 'a list = <fun>
+```
+lists can be also constructed 
 
 ### definitions
 different data can be stored for later use so that repeated code needen't be executed several times
@@ -115,6 +194,76 @@ definitions can be nested:
  - : int = 9261
  # let y = let x = 1024 in x * x * x;;
  - : int = 1073741824
+```
+
+#### datatype definition
+```
+type maybe_an_int = 
+    Some of int
+    | None
+;;
+```
+`type boolean = T | F;;`
+
+#### binary tree datatype I
+definition of the type:
+```
+type 'a tree = 
+    V
+    | N of 'a tree 'a tree * 'a tree
+;;
+```
+
+functions:
+```
+let rec nnodes = function
+    V -> 0
+    | N (_,i,d) -> 1+ nnodes i + nnodes d;;
+;;
+```
+```
+let rec height = function 
+    V -> 0
+    | N (_i,d) -> 1 + max (nnodes i + nnodes d)
+;;
+```
+```
+let rec preorder = function
+    V -> []
+    | N (root, left, right) -> right :: preorder left @ preorder right
+;;
+```
+```
+let rec leaves = function
+    V -> []
+    | N (root, V, V) -> [r]
+    | N (root, left, right) -> leaves left @ leaves right
+;;
+```
+
+#### full binary tree datatype
+definition of the type:
+```
+type 'a btree = 
+    Leaf of 'a
+    | Node of 'a * 'a btree * 'a btree
+;;
+```
+
+#### general tree datatype
+datatype definition:
+```
+type 'a gtree =
+    GT of 'a * 'a gtree list
+;;
+```
+
+```
+let rec nngtree = function
+    GT (_, l) -> List.fold_left (+) 1 (List.map nngtree l)
+;;
+
+let rec nngtree (GT (_, l)) = List.fold_left (+) 1 (List.map nngtree l);;
 ```
 
 
@@ -370,6 +519,17 @@ when the definition of a function does not have this kind of leftovers, it is sa
 
 ocaml provides space on the stack to aproximately store 300000 basic operations
 
+an example of tail call recursive function:
+```
+let fact n =
+    let rec aux f = function
+        0 -> f
+        | i -> aux (f * i) (i-1)
+    in function n -> aux 1 n
+;;
+```
+note that here the method to archive the tail-end recursion is to create an auxiliar function that keeps the value of the operations as an attribute
+
 ##### auxiliar definitions on recursive functions with tuples as result
 
 when a recursive function returns a simple element, leftover operations can be easily implemented if needed to calculate the answer:
@@ -408,3 +568,56 @@ let rec fib = function
     | let x, y = fib (x - 1)
         in x + y, x
 ;;
+
+### match... with patterns
+on ocaml we can also perform pattern mathcing following the model of `match ... with`
+
+```
+let rec append = function
+    [] -> (function l -> l)
+    | h::t -> (function l -> h :: append t l)
+```
+```
+let rec append l1 l2 = 
+    match l1 with 
+        [] -> l2
+        | h::t -> h :: append t l2
+;;
+```
+
+### execution errors
+while doing pattern matching we can forcibly stop the execution of the function by an exception, this can be done by calling `raise`
+```
+let hd function
+    [] -> raise (Failure "hd")
+    | h::_ -> h;;
+```
+
+#### try... with
+```
+let tl' l =
+    try List..tl with
+        Failure _ -> []
+;;
+```
+
+```
+let come (i1, j1) (i2, j2) =
+    j1 = j2 || abs (i2-i1) = abs (j2 - j1)
+;;
+
+let rec compatible p = function 
+    [] -> true
+    | [h::t] -> not (come p h) && compatible p t
+;;
+
+let queens n =
+  let rec complete path (i,j) =
+        if i > n then path
+        else if j < n then raise Not_found
+            else if compatible (i,j) path then
+                try completa ((i,j):: path) (i,j+1)
+            else completa path (i, j+1)
+        in completa [] (1,1)
+;;
+```
