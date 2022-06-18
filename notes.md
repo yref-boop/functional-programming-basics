@@ -1,6 +1,6 @@
 # ocaml notes
 
-### basics
+## basics
 ocaml is a general purpose, multiparadigm programming language, including in its toolchain an interactive top-level interpeter, a bytecode compiler a native code compiler, a debugger and a package manager
 
 files with ocaml code tend to use .ml extension
@@ -54,75 +54,22 @@ it also implements type infering, so that the language understands the type of e
 
 an effect of this is the existence of different infix operators (+), (+.), (/), (/.)... for each datatype
 
-### inflix operators
-in ocaml there exists different infix operators (+), (+.), (/), (/.)... for each datatype
+fun fact: integers in ocaml are defined as $\mathbb{Z}_{2^63}$
 
-some remakable operators:
-`=` structural equality
-`==` physical equality
-`<>` structural inequality
-`!=` physical unequality
-`**` exponentiation
-`sqrt`, `exp`, `log`
-
-also, new infix operators can be defined by using () in its definition:
+#### tuples
+moreover, ocaml allows tuples composed of any datatype, whose type would be the cardinal product of the types used:
 ```
-# let (+++) x y = x + 2 * y;;
-# 3 +++ 4;;
+ # (1,7);;
+ - : int * int = (1,7)
+ # (0, false)
+ - : int * bool = (0, false)
 ```
-
-### expressions
-
-### functions
-in ocaml functions are also types, which state the types that are used as input and returned as output
+it also allows for other tuples to be part of tuples:
 ```
- # asin;;
- - : float -> float = <fun>
- # abs;;
- - : int -> int = <fun>
- # print_endline;;
- - : string -> unit = <fun>
+ # ((3.14 , 'p'), "math");;
+ - : (float * char) * string = (3.14 , 'p'), "math");;
 ```
-they are applied by calling it with its arguments
-```
- # sqrt 10.;;
- - : float 3.16227766016837952
-```
-new personal functions can be implemented by several ways
-all possible cases can be explicitely written:
-```
-function true -> false | false -> true;;
-```
-this one with the type `bool -> bool = <fun>`
-
-or it can be infered from a general case:
-```
-function double x -> 2 * x;;
-```
-with the type `int -> int = <fun>`
-(note that the x written is a variable in the mathematical sense, it has no specific value as in a definition or imperative variable)
-
-this self made functions can also be applied as the predefined ones, by just adding the input after it:
-```
- # (function double x -> x * x) 3;;
- - : int 6
-```
-
-on execution, the application of a function will always be prioritized over infix operators
-moreover, the application of consecutive functions is left associative
-
-for example:
-```
-# let f = function x -> function y -> x + y;;
-val f : int -> int -> int = <fun>
-```
-in this case, f will return a function from integers to integers when applied to an integer, which can be applied to integers and will return a single integer:
-```
-# f 5;;
-- : int -> int = <fun>
-# (f 5) 2;;
-- : int = 7
-```
+the individual elements can be obtained by using the functions `fst` and `scd`
 
 ### definitions
 different data can be stored for later use so that repeated code needen't be executed several times
@@ -170,6 +117,61 @@ definitions can be nested:
  - : int = 1073741824
 ```
 
+
+### inflix operators
+in ocaml there exists different infix operators (+), (+.), (/), (/.)... for each datatype
+
+some remakable operators:
+`=` structural equality
+`==` physical equality
+`<>` structural inequality
+`!=` physical unequality
+`**` exponentiation
+`sqrt`, `exp`, `log`
+
+also, new infix operators can be defined by using () in its definition:
+```
+# let (+++) x y = x + 2 * y;;
+# 3 +++ 4;;
+```
+
+## functions
+in ocaml functions are also types, which state the types that are used as input and returned as output
+```
+ # asin;;
+ - : float -> float = <fun>
+ # abs;;
+ - : int -> int = <fun>
+ # print_endline;;
+ - : string -> unit = <fun>
+```
+they are applied by calling it with its arguments
+```
+ # sqrt 10.;;
+ - : float 3.16227766016837952
+```
+new personal functions can be implemented by several ways
+all possible cases can be explicitely written:
+```
+function true -> false | false -> true;;
+```
+this one with the type `bool -> bool = <fun>`
+
+or it can be infered from a general case:
+```
+function double x -> 2 * x;;
+```
+with the type `int -> int = <fun>`
+(note that the x written is a variable in the mathematical sense, it has no specific value as in a definition or imperative variable)
+
+this self made functions can also be applied as the predefined ones, by just adding the input after it:
+```
+ # (function double x -> x * x) 3;;
+ - : int 6
+```
+
+on execution, the application of a function will always be prioritized over infix operator
+
 ### function definition
 new functions can be defined for future use as stated previously using let
 in this case, the only thing needed is to write the `let` before the expression of the function
@@ -190,6 +192,33 @@ moreover, this application can be defined with another definition such that
  # let x = 17 in x * x;;
 ```
 
+#### scope of local definitions in functions:
+the exact placement of definitions inside functions plays a major role on the efficiency of a program
+for example, a value used on several functions can be defined before the definition of the function
+
+```
+let pi = 2. *. asin 1.;;
+
+let per_area r =
+    2. *. pi *. r, pi *. r *. r. ;;
+```
+in other cases, we would want the value to only be accessible but our function, this can be archieved by defining pi inside the function itself:
+```
+let per_area r =
+    let pi = 2. *. asin 1. in
+    2. *. pi *. r , pi *. r *. r
+;;
+```
+yet this implies the calcuclation of pi each time the function is called
+for the value of pi to only be calculated once, but still only being accessible by the function, it can be implemented as follows:
+```
+let per_area = 
+    let pi = 2. *. asin 1 in
+    function r -> 
+        2. *. pi *. r , pi *. r *. r
+;;
+```
+in this way, the value of pi is only calculated on the definition of per_area, and each time the function is called only the function will be calculated
 
 ### pattern matching
 the evaluation of functions following predefined patterns depending on the input is called pattern matching
@@ -221,6 +250,29 @@ or without having to redefine it:
  # let identity_int : int -> int = identity;;
  val identity_int : int -> int = <fun>
 ```
+
+### higher order functions
+in ocaml, it is possible to have functions that take several attributes as inputs
+since functions can only have one origin and one destiny, in ocaml, for each attribute there exists a function that is applied to the next, until the last provides the result
+for example
+```
+ # let f = function x -> function y -> x + y ;;
+ - : int -> int -> int = <fun>
+```
+it efectively sums two different numbers
+the application of consecutive functions is left associative
+
+sppecifically in this case, f will return a function from integers to integers when applied to an integer, which can be applied to integers and will return a single integer:
+```
+# f 5;;
+- : int -> int = <fun>
+```
+the function that is returned is a function that sums 5 to any number that is given as input:
+```
+# (f 5) 2;;
+- : int = 7
+```
+* note that if the attributes are inside of a tuple, it technically is just an attribute, thus there should be no need for higher order functions
 
 ### simplified notation (η reduction)
 when defining functions that only present one rule
@@ -290,4 +342,69 @@ if <e1> then <e2> else false;;
 if <e1> then true else <e2>;;
 ```
 
+### recursivity
+recursion allows a function to call itself from within its own code
+some functional programming languages such as ocaml do not define any looping constructs, but rely solely on recursion to repeatedly call code
 
+it is proved in computability theory that these recursive-only languages are turing complete
+
+in ocaml recursion is implemented by adding the reserved word `rec` on the definition of the function:
+
+```
+let rec fact n =
+    if n <= 0 then 1
+    else n * fact (n-1)
+;;
+```
+
+in order to avoid infinite recursive calls a base case is always needed
+
+#### tail call and stack overflow
+repeatedly calling a function from within itself may cause the call stack to have a size equal to the sum of the input sized of all involved calls
+hence, the importance of using optimisation techniques such as tail call on large problems
+
+specially problematic are the operations "left behind" on recursive calls:
+with the previous example, each recursive call will store on memor a `n * ...` operation to be made in backwards order once the last case has been reached
+
+when the definition of a function does not have this kind of leftovers, it is said to have a tail call, that is, the execution will be finished as soon as the last recursive call is finished and does not need to store leftovers on memory
+
+ocaml provides space on the stack to aproximately store 300000 basic operations
+
+##### auxiliar definitions on recursive functions with tuples as result
+
+when a recursive function returns a simple element, leftover operations can be easily implemented if needed to calculate the answer:
+```
+let rec quo x y =
+    if x < y then 0
+    else 1 + div (x-y) y
+;;
+```
+```
+let rec rem x y =
+    if x < y then x
+    else div (x-y) y
+;;
+```
+however, if the structure to be returned is more complex, one cannot just simply operate between tuples:
+the following code would be incorrect since tuples cannot be summed, only its elements can
+```
+let rec div x y =
+    if x < y then (0, x)
+    else (1,0) + div (x-y) y
+;;
+```
+in order for one to modify and store the values of thee tuple on each iteration, they can be stored in an auxiliar value:
+```
+let rec div x y =
+    if x < y then (0, x)
+    else let quo rem = div (x-1) y
+        in  1 + quo, rem
+;;
+```
+this way we can indicate that for each recursive call, the value for the next call will be (x-1, y) and there is a leftover operation that adds +1 on the first element of the tuple
+
+let rec fib = function
+    1 -> 1,0
+    | let x, y = fib (x - 1)
+        in x + y, x
+;;
