@@ -148,7 +148,11 @@ most notable functions are
  # List.init;;
  - : int -> (int -> 'a) -> 'a list = <fun>
 ```
-lists can be also constructed 
+
+```
+ # List.fold_left;;
+ - : ('a -> 'b -> 'a) -> 'a -> 'b list -> 'a = <fun>
+```
 
 ### definitions
 different data can be stored for later use so that repeated code needen't be executed several times
