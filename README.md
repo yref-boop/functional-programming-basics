@@ -1,5 +1,9 @@
 # functional-programming-basics
 this repository is a collection of small, relatively basic problems solved using OCaml
+
+### libraries & technologies:
+`ocaml`
+
 as well as a relatively brief summary of the material explained on te theoretical versions
 
 ### p01 - types and basic expressions
